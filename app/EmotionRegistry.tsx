@@ -6,27 +6,26 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import createEmotionCache from "./createEmotionCache";
 
-// Criar tema claro personalizado
 const theme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#2563eb", // Azul moderno
+      main: "#2563eb",
       light: "#3b82f6",
       dark: "#1d4ed8",
     },
     secondary: {
-      main: "#7c3aed", // Roxo moderno
+      main: "#7c3aed",
       light: "#8b5cf6",
       dark: "#6d28d9",
     },
     background: {
-      default: "#f8fafc", // Cinza muito claro
-      paper: "#ffffff",   // Branco puro
+      default: "#ffffff",
+      paper: "#ffffff",
     },
     text: {
-      primary: "#1e293b", // Cinza escuro para texto
-      secondary: "#64748b", // Cinza médio
+      primary: "#1e293b",
+      secondary: "#64748b",
     },
   },
   typography: {
