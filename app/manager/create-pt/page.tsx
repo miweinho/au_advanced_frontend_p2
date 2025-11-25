@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
@@ -16,9 +16,19 @@ interface PTFormData {
 
 export default function CreatePT() {
   const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  // ✅ token hook INSIDE component
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    setToken(storedToken);
+  }, []);
+
   
   const [formData, setFormData] = useState<PTFormData>({
     name: '',
@@ -42,22 +52,22 @@ export default function CreatePT() {
     setLoading(true);
     setError('');
     setSuccess(false);
-
+  
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);
       return;
     }
-
+  
+    if (!token) {
+      setError("You must be logged in to create a PT");
+      setLoading(false);
+      return;
+    }
+  
     try {
-      const token = localStorage.getItem('authToken');
-      
-      if (!token) {
-        throw new Error('You must be logged in to create a PT');
-      }
-
       const { confirmPassword, ...apiData } = formData;
-
+  
       const response = await fetch('https://assignment2.swafe.dk/api/Users', {
         method: 'POST',
         headers: {
@@ -66,33 +76,34 @@ export default function CreatePT() {
         },
         body: JSON.stringify(apiData),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || 'Failed to create PT');
       }
-
+  
       setSuccess(true);
-      
+  
       setFormData({
         name: '',
         email: '',
         password: '',
         confirmPassword: '',
         accountType: 'PersonalTrainer',
-        personalTrainerId: 0
+        personalTrainerId: 0,
       });
-      
+  
       setTimeout(() => {
         router.push('/manager/pt-list');
       }, 2000);
-      
+  
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

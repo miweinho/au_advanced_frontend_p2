@@ -25,7 +25,7 @@ export default function PTList() {
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('token');
       
       if (!token) {
         throw new Error('You must be logged in to view PTs');
@@ -59,7 +59,7 @@ export default function PTList() {
 
     setDeleteId(id);
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('token');
       
       if (!token) {
         throw new Error('You must be logged in to delete a PT');

@@ -14,7 +14,7 @@ export default function ManagerHome() {
 
   const fetchStats = async () => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('token');
       if (token) {
         const response = await fetch('https://assignment2.swafe.dk/api/Users', {
           headers: { 'Authorization': `Bearer ${token}` }
