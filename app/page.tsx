@@ -1,84 +1,44 @@
 'use client';
 
-import { useState } from 'react';
-import { Container, TextField, Button, Typography, Box } from '@mui/material';
-import axios from 'axios';
+// ...existing code...
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { jwtDecode } from "jwt-decode";
+import LoginPage from './auth/login';
 
-
-export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function HomePage() {
   const router = useRouter();
+  const [checking, setChecking] = useState(true);
 
- const handleLogin = async () => {
-   try {
-     const response = await axios.post(
-       "https://assignment2.swafe.dk/api/Users/login",
-       { email, password }
-     );
+  useEffect(() => {
+    // check existing session from localStorage
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const role = typeof window !== 'undefined' ? localStorage.getItem('role') : null;
 
-     const token = response.data.jwt;
+    if (token && role) {
+      // immediate redirect if already logged in
+      if (role === "Client") router.push("/client");
+      else if (role === "Trainer") router.push("/trainer");
+      else if (role === "Manager") router.push("/manager");
+    } else {
+      setChecking(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-     const decoded: any = jwtDecode(token);
-     console.log("JWT DECODED:", decoded);
+  const handleLogin = (token: string, role: string) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", role);
+    console.log(token, role)
 
-     const role = decoded.Role;  // <- "Client", "Trainer", "Manager"
+    if (role === "Client") router.push("/client");
+    else if (role === "Trainer") router.push("/trainer");
+    else if (role === "Manager") router.push("/manager");
+  };
 
-     localStorage.setItem("token", token);
-     localStorage.setItem("role", role);
+  if (checking) {
+    return <div />; // or a small spinner
+  }
 
-     if (role === "Client") {
-       router.push("/client");
-     } else if (role === "Trainer") {
-       router.push("/trainer");
-     } else if (role === "Manager") {
-       router.push("/manager");
-     }
-
-   } catch (err) {
-     console.error(err);
-     alert("Credenciais inválidas!");
-   }
- };
-
-
-
-  return (
-    <Container maxWidth="sm">
-      <Box sx={{ mt: 10, p: 4, borderRadius: 2, boxShadow: 3 }}>
-        <Typography variant="h5" gutterBottom>
-          Login
-        </Typography>
-
-        <TextField
-          label="Email"
-          fullWidth
-          margin="normal"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <TextField
-          label="Password"
-          type="password"
-          fullWidth
-          margin="normal"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <Button
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 2 }}
-          onClick={handleLogin}
-        >
-          Entrar
-        </Button>
-      </Box>
-    </Container>
-  );
+  return <LoginPage onLogin={handleLogin} />;
 }
+// ...existing code...

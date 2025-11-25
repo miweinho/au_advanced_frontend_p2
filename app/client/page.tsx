@@ -1,27 +1,34 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Container, Typography, Box } from '@mui/material';
+import { Container } from '@mui/material';
 import axios from 'axios';
+import { useUI } from '../components/ui/UIContext';
 import { WorkoutProgram } from './types/workout';
 import DashboardContent from './components/Dashboard/DashboardContent';
 import LoadingState from './components/LoadingState';
 
 export default function DashboardPage() {
+  const pageTitle = "Workout Dashboard";
   const [programs, setPrograms] = useState<WorkoutProgram[]>([]);
   const [loading, setLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
+  const { setShowShell, setTitle } = useUI();
 
-  // Garantir que só executa no client
+  // Ensure this runs only on the client
   useEffect(() => {
-    setMounted(true);
-    const token = localStorage.getItem("token");
+    setShowShell(true);
+    setTitle(pageTitle);
+
+    // Shell should guarantee auth; we simply read token and fetch data
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
     if (!token) {
+      // if no token unexpectedly present, stop loading to avoid spinner loop
       setLoading(false);
       return;
     }
 
+    setLoading(true);
     axios.get("https://assignment2.swafe.dk/api/WorkoutPrograms", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -29,23 +36,18 @@ export default function DashboardPage() {
       }
     })
     .then(res => {
-      setPrograms(res.data);
-      setLoading(false);
+      setPrograms(res.data || []);
     })
     .catch(err => {
       console.error(err);
+    })
+    .finally(() => {
       setLoading(false);
     });
-  }, []);
+  }, [setShowShell, setTitle]);
 
-  // Durante SSR, mostrar loading genérico
-  if (!mounted) {
-    return <LoadingState />;
-  }
-
-  if (loading) {
-    return <LoadingState />;
-  }
+  // During SSR, show a generic loading state
+  if (loading) return <LoadingState />;
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

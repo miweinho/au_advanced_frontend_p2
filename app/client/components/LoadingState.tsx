@@ -7,7 +7,7 @@ interface LoadingStateProps {
 }
 
 export default function LoadingState({
-  message = "Carregando..."
+  message = "Loading..."
 }: LoadingStateProps) {
   return (
     <Box

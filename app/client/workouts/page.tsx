@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Container, Typography, Box, Paper, Grid, Chip } from '@mui/material';
+import { Container, Typography, Box, Paper, Grid } from '@mui/material';
 import { FitnessCenter, Schedule, TrendingUp } from '@mui/icons-material';
 import axios from 'axios';
 import { WorkoutProgram } from '../types/workout';
@@ -9,6 +9,7 @@ import WorkoutList from '../components/workouts/WorkoutList';
 import WorkoutDetails from '../components/workouts/WorkoutDetails';
 import EmptyState from '../components/EmptyState';
 import LoadingState from '../components/LoadingState';
+
 export default function WorkoutsPage() {
   const [programs, setPrograms] = useState<WorkoutProgram[]>([]);
   const [selectedProgram, setSelectedProgram] = useState<WorkoutProgram | null>(null);
@@ -43,7 +44,7 @@ export default function WorkoutsPage() {
     setSelectedProgram(null);
   };
 
-  // Durante SSR, mostrar loading
+  // During SSR/hydration show loading
   if (!mounted) {
     return <LoadingState />;
   }
@@ -79,14 +80,14 @@ export default function WorkoutsPage() {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          Meus Programas de Treino
+          My Workout Programs
         </Typography>
         <Typography variant="h6" color="text.secondary" sx={{ mb: 3, maxWidth: 600, mx: 'auto' }}>
-          Escolha um programa para explorar os exercícios e começar seu treino
+          Choose a program to explore exercises and start your workout
         </Typography>
       </Box>
 
-      {/* Estatísticas Rápidas */}
+      {/* Quick stats */}
       <Grid container spacing={3} sx={{ mb: 6 }}>
         <Grid item xs={12} sm={4}>
           <Paper sx={{ p: 3, textAlign: 'center', borderRadius: 3 }}>
@@ -97,7 +98,7 @@ export default function WorkoutsPage() {
                   {programs.length}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Programas
+                  Programs
                 </Typography>
               </Box>
             </Box>
@@ -113,7 +114,7 @@ export default function WorkoutsPage() {
                   {programs.reduce((total, program) => total + (program.exercises?.length || 0), 0)}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Exercícios
+                  Exercises
                 </Typography>
               </Box>
             </Box>
@@ -129,7 +130,7 @@ export default function WorkoutsPage() {
                   3
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Treinos/Semana
+                  Workouts / week
                 </Typography>
               </Box>
             </Box>
@@ -137,7 +138,7 @@ export default function WorkoutsPage() {
         </Grid>
       </Grid>
 
-      {/* Lista de Programas */}
+      {/* Program list */}
       {programs.length === 0 ? (
         <EmptyState />
       ) : (

@@ -27,6 +27,11 @@ interface ExerciseDialogProps {
   onClose: () => void;
 }
 
+/*
+  ExerciseDialog
+  - Shows exercise details (description, stats, instructions)
+  - All labels and comments translated to English
+*/
 export default function ExerciseDialog({ exercise, open, onClose }: ExerciseDialogProps) {
   if (!exercise) return null;
 
@@ -61,13 +66,13 @@ export default function ExerciseDialog({ exercise, open, onClose }: ExerciseDial
       </DialogTitle>
 
       <DialogContent sx={{ p: 4 }}>
-        {/* Descrição */}
+        {/* Description */}
         {exercise.description && (
           <Box sx={{ mb: 4 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <Info color="primary" sx={{ mr: 1 }} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Descrição
+                Description
               </Typography>
             </Box>
             <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>
@@ -78,7 +83,7 @@ export default function ExerciseDialog({ exercise, open, onClose }: ExerciseDial
 
         <Divider sx={{ mb: 4 }} />
 
-        {/* Estatísticas do Exercício */}
+        {/* Exercise statistics */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
             <Card
@@ -95,7 +100,7 @@ export default function ExerciseDialog({ exercise, open, onClose }: ExerciseDial
                 {exercise.sets}
               </Typography>
               <Typography variant="body2">
-                Séries
+                Sets
               </Typography>
             </Card>
           </Grid>
@@ -115,7 +120,7 @@ export default function ExerciseDialog({ exercise, open, onClose }: ExerciseDial
                 {exercise.repetitions}
               </Typography>
               <Typography variant="body2">
-                Repetições
+                Repetitions
               </Typography>
             </Card>
           </Grid>
@@ -133,10 +138,10 @@ export default function ExerciseDialog({ exercise, open, onClose }: ExerciseDial
               >
                 <Timer sx={{ fontSize: 40, mb: 1 }} />
                 <Typography variant="h4" fontWeight={700}>
-                  {exercise.restTime}"
+                  {exercise.restTime}s
                 </Typography>
                 <Typography variant="body2">
-                  Descanso
+                  Rest
                 </Typography>
               </Card>
             </Grid>
@@ -158,20 +163,20 @@ export default function ExerciseDialog({ exercise, open, onClose }: ExerciseDial
                   {exercise.difficulty}
                 </Typography>
                 <Typography variant="body2">
-                  Dificuldade
+                  Difficulty
                 </Typography>
               </Card>
             </Grid>
           )}
         </Grid>
 
-        {/* Instruções */}
+        {/* Instructions */}
         {exercise.instructions && (
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <SportsGymnastics color="primary" sx={{ mr: 1 }} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Instruções de Execução
+                Execution Instructions
               </Typography>
             </Box>
             <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>

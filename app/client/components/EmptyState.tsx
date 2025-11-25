@@ -11,9 +11,9 @@ interface EmptyStateProps {
 }
 
 export default function EmptyState({
-  title = "Nenhum programa disponível",
-  message = "Entre em contato com seu personal trainer para criar um programa personalizado.",
-  actionText = "Solicitar Programa",
+  title = "No programs available",
+  message = "Contact your personal trainer to get a tailored program.",
+  actionText = "Request Program",
   onAction
 }: EmptyStateProps) {
   return (

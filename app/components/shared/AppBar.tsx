@@ -1,11 +1,10 @@
 'use client';
 
-import { AppBar as MuiAppBar, Toolbar, Typography, IconButton, Badge } from '@mui/material';
-import {
-  Menu as MenuIcon,
-  FitnessCenter,
-  Notifications as NotificationsIcon
-} from '@mui/icons-material';
+import { AppBar as MuiAppBar, Toolbar, Typography, IconButton, Badge, Tooltip } from '@mui/material';
+import { Menu as MenuIcon, FitnessCenter, Notifications as NotificationsIcon } from '@mui/icons-material';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useRouter } from 'next/navigation';
+import { useUI } from '../ui/UIContext';
 
 interface AppBarProps {
   open: boolean;
@@ -15,6 +14,20 @@ interface AppBarProps {
 const drawerWidth = 240;
 
 export default function AppBar({ open, toggleDrawer }: AppBarProps) {
+  const router = useRouter();
+  const { title } = useUI();
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('drawerOpen');
+    } catch {
+      // ignore storage errors
+    }
+    router.replace('/');
+  };
+
   return (
     <MuiAppBar
       position="absolute"
@@ -37,36 +50,27 @@ export default function AppBar({ open, toggleDrawer }: AppBarProps) {
       }}
     >
       <Toolbar sx={{ pr: '24px' }}>
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="open drawer"
-          onClick={toggleDrawer}
-          sx={{
-            marginRight: '36px',
-            ...(open && { display: 'none' }),
-          }}
-        >
+        <IconButton edge="start" color="inherit" aria-label="open drawer" onClick={toggleDrawer} sx={{ marginRight: '36px', ...(open && { display: 'none' }) }}>
           <MenuIcon />
         </IconButton>
 
         <FitnessCenter sx={{ mr: 2 }} />
 
-        <Typography
-          component="h1"
-          variant="h6"
-          color="inherit"
-          noWrap
-          sx={{ flexGrow: 1 }}
-        >
-          Fitness Dashboard
+        <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+          {title}
         </Typography>
 
-        <IconButton color="inherit">
+        <IconButton color="inherit" aria-label="notifications">
           <Badge badgeContent={4} color="secondary">
             <NotificationsIcon />
           </Badge>
         </IconButton>
+
+        <Tooltip title="Logout">
+          <IconButton color="inherit" aria-label="logout" onClick={handleLogout}>
+            <LogoutIcon />
+          </IconButton>
+        </Tooltip>
       </Toolbar>
     </MuiAppBar>
   );

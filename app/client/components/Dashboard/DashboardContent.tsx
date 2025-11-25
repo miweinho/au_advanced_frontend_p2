@@ -17,31 +17,36 @@ interface DashboardContentProps {
 
 export default function DashboardContent({ programs }: DashboardContentProps) {
   const totalExercises = programs.reduce((total, program) => total + (program.exercises?.length || 0), 0);
-  const completedSessions = 3; // Mock data - podes substituir por dados reais
+  const completedSessions = 3; // Mock data - replace with real data
   const weeklyGoal = 5;
 
   return (
     <>
-      {/* Header com Boas-vindas */}
+      {/* Welcome header */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom sx={{
-          fontWeight: 700,
-          color: 'text.primary',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          backgroundClip: 'text',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-        }}>
-          Bem-vindo ao seu Dashboard! 💪
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          sx={{
+            fontWeight: 700,
+            color: 'text.primary',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          Welcome to your Dashboard! 💪
         </Typography>
         <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
-          Acompanhe seu progresso e gerencie seus treinos
+          Track your progress and manage your workouts
         </Typography>
       </Box>
 
-      {/* Estatísticas em Grid */}
+      {/* Stats grid */}
       <Grid container spacing={3} sx={{ mb: 6 }}>
-        {/* Programas Ativos */}
+        {/* Active Programs */}
         <Grid item xs={12} sm={6} md={3}>
           <Paper
             sx={{
@@ -70,19 +75,19 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <FitnessCenter sx={{ fontSize: 28, mr: 1.5 }} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Programas Ativos
+                Active Programs
               </Typography>
             </Box>
             <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>
               {programs.length}
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.9 }}>
-              Total de programas
+              Total programs
             </Typography>
           </Paper>
         </Grid>
 
-        {/* Total Exercícios */}
+        {/* Total Exercises */}
         <Grid item xs={12} sm={6} md={3}>
           <Paper
             sx={{
@@ -111,19 +116,19 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <TrendingUp sx={{ fontSize: 28, mr: 1.5 }} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Total Exercícios
+                Total Exercises
               </Typography>
             </Box>
             <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>
               {totalExercises}
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.9 }}>
-              Em todos os programas
+              Across all programs
             </Typography>
           </Paper>
         </Grid>
 
-        {/* Sessões Esta Semana */}
+        {/* Sessions This Week */}
         <Grid item xs={12} sm={6} md={3}>
           <Paper
             sx={{
@@ -152,19 +157,19 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <CalendarToday sx={{ fontSize: 28, mr: 1.5 }} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Sessões Esta Semana
+                Sessions This Week
               </Typography>
             </Box>
             <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>
               {completedSessions}
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.9 }}>
-              Treinos completados
+              Workouts completed
             </Typography>
           </Paper>
         </Grid>
 
-        {/* Meta Semanal */}
+        {/* Weekly Goal */}
         <Grid item xs={12} sm={6} md={3}>
           <Paper
             sx={{
@@ -193,7 +198,7 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <EmojiEvents sx={{ fontSize: 28, mr: 1.5 }} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Meta Semanal
+                Weekly Goal
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
@@ -211,13 +216,13 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
               />
             </Box>
             <Typography variant="body2" sx={{ opacity: 0.9 }}>
-              {completedSessions >= weeklyGoal ? 'Meta atingida! 🎉' : 'Continue assim!'}
+              {completedSessions >= weeklyGoal ? 'Goal reached! 🎉' : 'Keep it up!'}
             </Typography>
           </Paper>
         </Grid>
       </Grid>
 
-      {/* Próximo Treino */}
+      {/* Next Recommended Workout */}
       {programs.length > 0 && (
         <Paper
           sx={{
@@ -234,10 +239,10 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
             <AccessTime color="primary" sx={{ mr: 2, fontSize: 32 }} />
             <Box>
               <Typography variant="h5" component="h2" sx={{ fontWeight: 600, mb: 0.5 }}>
-                Próximo Treino Recomendado
+                Next Recommended Workout
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                {programs[0].name} - {programs[0].exercises?.length || 0} exercícios
+                {programs[0].name} - {programs[0].exercises?.length || 0} exercises
               </Typography>
             </Box>
           </Box>
@@ -245,16 +250,16 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
             <Chip
               icon={<FitnessCenter />}
-              label={`${programs[0].exercises?.length || 0} exercícios`}
+              label={`${programs[0].exercises?.length || 0} exercises`}
               variant="outlined"
             />
             <Chip
               icon={<AccessTime />}
-              label="45-60 minutos"
+              label="45-60 minutes"
               variant="outlined"
             />
             <Chip
-              label="Iniciante"
+              label="Beginner"
               color="primary"
               variant="filled"
             />
@@ -262,7 +267,7 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
         </Paper>
       )}
 
-      {/* Programas Recentes */}
+      {/* Recent Programs */}
       <Paper
         sx={{
           p: 4,
@@ -286,7 +291,7 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
               mb: 2
             }}
           >
-            Meus Programas de Treino
+            My Workout Programs
           </Typography>
           <Typography
             variant="h6"
@@ -296,7 +301,7 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
               lineHeight: 1.6
             }}
           >
-            Gerencie seus programas de treino e acompanhe seu progresso
+            Manage your workout programs and track your progress
           </Typography>
         </Box>
 
@@ -304,7 +309,7 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
           <WorkoutList
             programs={programs}
             onProgramSelect={(program) => {
-              // Navegação para a página de detalhes
+              // Navigate to the details page
               window.location.href = `/client/workouts?program=${program.workoutProgramId}`;
             }}
           />
@@ -312,16 +317,16 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
           <Box sx={{ textAlign: 'center', py: 6 }}>
             <FitnessCenter sx={{ fontSize: 64, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
             <Typography variant="h6" color="text.secondary" gutterBottom>
-              Nenhum programa disponível
+              No programs available
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Entre em contato com seu personal trainer para criar um programa personalizado.
+              Contact your personal trainer to get a tailored program.
             </Typography>
           </Box>
         )}
       </Paper>
 
-      {/* Dica Rápida */}
+      {/* Quick Tip */}
       <Paper
         sx={{
           mt: 3,
@@ -345,10 +350,10 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
           </Box>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
-              Dica do Dia
+              Tip of the Day
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Mantenha a hidratação durante os treinos! Beba água antes, durante e após o exercício para melhor performance.
+              Stay hydrated during your workouts! Drink water before, during, and after exercise for better performance.
             </Typography>
           </Box>
         </Box>

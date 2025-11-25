@@ -2,7 +2,7 @@
 
 import { Card, CardContent, Typography, Box, Chip, Button, alpha } from '@mui/material';
 import { FitnessCenter, ArrowForward, Schedule } from '@mui/icons-material';
-import { WorkoutProgram } from '../../../types/workout';
+import { WorkoutProgram } from '../../types/workout';
 
 interface WorkoutCardProps {
   program: WorkoutProgram;
@@ -61,7 +61,7 @@ export default function WorkoutCard({ program, onSelect }: WorkoutCardProps) {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
           <Chip
             icon={<Schedule />}
-            label={`${exerciseCount} exercícios`}
+            label={`${exerciseCount} exercises`}
             size="small"
             variant="outlined"
             sx={{
@@ -82,8 +82,9 @@ export default function WorkoutCard({ program, onSelect }: WorkoutCardProps) {
             fontWeight: 500,
             py: 1
           }}
+          onClick={() => onSelect(program)}
         >
-          Ver Detalhes
+          View Details
         </Button>
       </CardContent>
     </Card>

@@ -1,9 +1,10 @@
 import "./globals.css";
 import EmotionRegistry from "./EmotionRegistry";
+import Shell from "./components/Shell";
 
 export const metadata = {
-  title: "Fitness App - Seu Personal Trainer Digital",
-  description: "Gerencie seus programas de treino e alcance seus objetivos fitness",
+  title: "AU 25 Advanced Frontend Group 31",
+  description: "Next.js fitness application.",
 };
 
 export default function RootLayout({ 
@@ -12,16 +13,12 @@ export default function RootLayout({
   children: React.ReactNode 
 }) {
   return (
-    <html lang="pt">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body style={{ margin: 0, padding: 0 }}>
+    <html lang="en">
+      <body>
+        {/* Emotion/Theme providers kept at root */}
         <EmotionRegistry>
-          {children}
+          {/* Shell decides whether to show the global AppBar/Drawer or render children (login) */}
+          <Shell>{children}</Shell>
         </EmotionRegistry>
       </body>
     </html>

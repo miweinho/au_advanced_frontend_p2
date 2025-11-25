@@ -37,8 +37,8 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
   };
 
   const handleStartWorkout = () => {
-    // Aqui podes implementar a lógica para iniciar o treino
-    alert(`Iniciando treino: ${program.name}`);
+    // You can implement the start-workout logic here
+    alert(`Starting workout: ${program.name}`);
   };
 
   return (
@@ -50,7 +50,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
           onClick={onBack}
           sx={{ mb: 3, textTransform: 'none' }}
         >
-          Voltar para lista
+          Back to list
         </Button>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
@@ -67,12 +67,12 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               <Chip
                 icon={<FitnessCenter />}
-                label={`${program.exercises?.length || 0} exercícios`}
+                label={`${program.exercises?.length || 0} exercises`}
                 color="primary"
                 variant="filled"
               />
               <Chip
-                label="Ativo"
+                label="Active"
                 color="success"
                 variant="outlined"
               />
@@ -96,12 +96,12 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
               py: 1.5
             }}
           >
-            Iniciar Treino
+            Start Workout
           </Button>
         </Box>
       </Box>
 
-      {/* Lista de Exercícios */}
+      {/* Exercise List */}
       <Grid container spacing={3}>
         {program.exercises?.map((exercise, index) => (
           <Grid item xs={12} key={exercise.exerciseId || index}>
@@ -121,7 +121,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
             >
               <CardContent sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3 }}>
-                  {/* Número do Exercício */}
+                  {/* Exercise number */}
                   <Avatar
                     sx={{
                       bgcolor: 'primary.main',
@@ -133,7 +133,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
                     {index + 1}
                   </Avatar>
 
-                  {/* Informações do Exercício */}
+                  {/* Exercise information */}
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
                       {exercise.name}
@@ -155,13 +155,13 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
                       </Typography>
                     )}
 
-                    {/* Detalhes do Exercício */}
+                    {/* Exercise details */}
                     <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Repeat sx={{ fontSize: 20, color: 'primary.main' }} />
                         <Box>
                           <Typography variant="caption" color="text.secondary">
-                            Séries
+                            Sets
                           </Typography>
                           <Typography variant="body2" fontWeight={600}>
                             {exercise.sets}
@@ -173,7 +173,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
                         <FitnessCenter sx={{ fontSize: 20, color: 'primary.main' }} />
                         <Box>
                           <Typography variant="caption" color="text.secondary">
-                            Repetições
+                            Repetitions
                           </Typography>
                           <Typography variant="body2" fontWeight={600}>
                             {exercise.repetitions}
@@ -186,7 +186,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
                           <Timer sx={{ fontSize: 20, color: 'primary.main' }} />
                           <Box>
                             <Typography variant="caption" color="text.secondary">
-                              Descanso
+                              Rest
                             </Typography>
                             <Typography variant="body2" fontWeight={600}>
                               {exercise.restTime}s
@@ -200,7 +200,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
                           <SportsGymnastics sx={{ fontSize: 20, color: 'primary.main' }} />
                           <Box>
                             <Typography variant="caption" color="text.secondary">
-                              Dificuldade
+                              Difficulty
                             </Typography>
                             <Typography variant="body2" fontWeight={600}>
                               {exercise.difficulty}
@@ -211,7 +211,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
                     </Box>
                   </Box>
 
-                  {/* Botão de Ação */}
+                  {/* Action button */}
                   <Button
                     variant="outlined"
                     size="small"
@@ -220,7 +220,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
                       borderRadius: 2
                     }}
                   >
-                    Ver Detalhes
+                    View Details
                   </Button>
                 </Box>
               </CardContent>
@@ -229,7 +229,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
         ))}
       </Grid>
 
-      {/* Resumo do Treino */}
+      {/* Workout summary */}
       {program.exercises && program.exercises.length > 0 && (
         <Card
           sx={{
@@ -240,13 +240,13 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
         >
           <CardContent sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-              Resumo do Treino
+              Workout Summary
             </Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={3}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
-                    Total de Exercícios
+                    Total Exercises
                   </Typography>
                   <Typography variant="h6" fontWeight={600}>
                     {program.exercises.length}
@@ -256,7 +256,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
               <Grid item xs={12} sm={6} md={3}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
-                    Séries Totais
+                    Total Sets
                   </Typography>
                   <Typography variant="h6" fontWeight={600}>
                     {program.exercises.reduce((total, ex) => total + ex.sets, 0)}
@@ -266,7 +266,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
               <Grid item xs={12} sm={6} md={3}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
-                    Tempo Estimado
+                    Estimated Time
                   </Typography>
                   <Typography variant="h6" fontWeight={600}>
                     45-60 min
@@ -276,10 +276,10 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
               <Grid item xs={12} sm={6} md={3}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
-                    Nível
+                    Level
                   </Typography>
                   <Typography variant="h6" fontWeight={600}>
-                    Iniciante
+                    Beginner
                   </Typography>
                 </Box>
               </Grid>
@@ -288,7 +288,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
         </Card>
       )}
 
-      {/* Modal de Detalhes do Exercício */}
+      {/* Exercise details modal */}
       <ExerciseDialog
         exercise={selectedExercise}
         open={!!selectedExercise}
