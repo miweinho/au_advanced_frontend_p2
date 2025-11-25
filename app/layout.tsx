@@ -6,7 +6,11 @@ export const metadata = {
   description: "Gerencie seus programas de treino e alcance seus objetivos fitness",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ 
+  children 
+}: { 
+  children: React.ReactNode 
+}) {
   return (
     <html lang="pt">
       <head>

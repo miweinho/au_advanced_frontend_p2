@@ -19,6 +19,7 @@ import {
 } from '@mui/icons-material';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import theme from '@/src/theme';
 
 interface DrawerProps {
   open: boolean;
