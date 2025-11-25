@@ -1,24 +1,24 @@
-'use client';
+import "./globals.css";
+import EmotionRegistry from "./EmotionRegistry";
 
-import { ReactNode, useEffect } from 'react';
-import { ThemeProvider, CssBaseline } from '@mui/material';
-import theme from '../src/theme';
+export const metadata = {
+  title: "Fitness App - Seu Personal Trainer Digital",
+  description: "Gerencie seus programas de treino e alcance seus objetivos fitness",
+};
 
-export default function RootLayout({ children }: { children: ReactNode }) {
-  useEffect(() => {
-    const jssStyles = document.querySelector('#jss-server-side');
-    if (jssStyles && jssStyles.parentElement) {
-      jssStyles.parentElement.removeChild(jssStyles);
-    }
-  }, []);
-
+export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
+    <html lang="pt">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body style={{ margin: 0, padding: 0 }}>
+        <EmotionRegistry>
           {children}
-        </ThemeProvider>
+        </EmotionRegistry>
       </body>
     </html>
   );

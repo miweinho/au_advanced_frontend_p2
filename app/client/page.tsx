@@ -1,88 +1,55 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Container, Typography, Card, CardContent, Button, Box } from '@mui/material';
+import { Container, Typography, Box } from '@mui/material';
 import axios from 'axios';
+import { WorkoutProgram } from './types/workout';
+import DashboardContent from './components/Dashboard/DashboardContent';
+import LoadingState from './components/LoadingState';
 
-export default function ClientPrograms() {
-  const [programs, setPrograms] = useState<any[]>([]);
-  const [selectedProgram, setSelectedProgram] = useState<any | null>(null);
+export default function DashboardPage() {
+  const [programs, setPrograms] = useState<WorkoutProgram[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
+  // Garantir que só executa no client
   useEffect(() => {
+    setMounted(true);
     const token = localStorage.getItem("token");
 
-    axios.get("https://assignment2.swafe.dk/api/WorkoutPrograms/my", {
-      headers: { Authorization: `Bearer ${token}` }
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    axios.get("https://assignment2.swafe.dk/api/WorkoutPrograms", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "text/plain"
+      }
     })
-    .then(res => setPrograms(res.data))
-    .catch(err => console.error(err));
+    .then(res => {
+      setPrograms(res.data);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
   }, []);
 
-  useEffect(() => {
-    if (programs.length === 1) {
-      setSelectedProgram(programs[0]);
-    }
-  }, [programs]);
-
-  if (programs.length === 0) {
-    return <Typography>Sem programas disponíveis.</Typography>;
+  // Durante SSR, mostrar loading genérico
+  if (!mounted) {
+    return <LoadingState />;
   }
 
-  if (!selectedProgram) {
-    return (
-      <Container>
-        <Typography variant="h4" sx={{ mt: 3, mb: 2 }}>Os meus Programas</Typography>
-
-        {programs.map(p => (
-          <Card key={p.id} sx={{ mb: 2 }}>
-            <CardContent>
-              <Typography variant="h6">{p.name}</Typography>
-              <Button variant="contained" sx={{ mt: 1 }}
-                onClick={() => setSelectedProgram(p)}
-              >
-                Ver Programa
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </Container>
-    );
+  if (loading) {
+    return <LoadingState />;
   }
 
   return (
-    <ClientProgramDetails program={selectedProgram} />
-  );
-}
-
-function ClientProgramDetails({ program }: { program: any }) {
-  const [exercises, setExercises] = useState<any[]>([]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    axios.get(`https://assignment2.swafe.dk/api/Exercises/program/${program.id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    .then(res => setExercises(res.data))
-    .catch(err => console.error(err));
-  }, [program]);
-
-  return (
-    <Container>
-      <Typography variant="h4" sx={{ mt: 3 }}>{program.name}</Typography>
-
-      {exercises.map(ex => (
-        <Card key={ex.id} sx={{ mt: 2 }}>
-          <CardContent>
-            <Typography variant="h6">{ex.name}</Typography>
-            <Typography>{ex.description}</Typography>
-            <Box sx={{ mt: 1 }}>
-              <strong>Sets:</strong> {ex.sets} <br />
-              <strong>Reps/Tempo:</strong> {ex.repetitionsOrTime}
-            </Box>
-          </CardContent>
-        </Card>
-      ))}
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <DashboardContent programs={programs} />
     </Container>
   );
 }
