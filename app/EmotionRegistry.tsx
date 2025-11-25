@@ -1,6 +1,6 @@
 "use client";
 
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren, useMemo } from "react";
 import { CacheProvider } from "@emotion/react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -92,13 +92,14 @@ const theme = createTheme({
   },
 });
 
-export default function EmotionRegistry({ children }: PropsWithChildren) {
-  const [cache] = useState(() => createEmotionCache());
+// Create cache outside component to avoid recreating on every render
+const clientSideEmotionCache = createEmotionCache();
 
+export default function EmotionRegistry({ children }: PropsWithChildren) {
   return (
-    <CacheProvider value={cache}>
+    <CacheProvider value={clientSideEmotionCache}>
       <ThemeProvider theme={theme}>
-        <CssBaseline /> {/* Isso reseta o CSS e aplica o tema claro */}
+        <CssBaseline />
         {children}
       </ThemeProvider>
     </CacheProvider>

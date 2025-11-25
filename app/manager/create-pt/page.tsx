@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 
 interface PTFormData {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -16,22 +17,14 @@ interface PTFormData {
 
 export default function CreatePT() {
   const router = useRouter();
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-
-  // ✅ token hook INSIDE component
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    setToken(storedToken);
-  }, []);
-
+  const [mounted, setMounted] = useState(false);
   
   const [formData, setFormData] = useState<PTFormData>({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -39,11 +32,17 @@ export default function CreatePT() {
     personalTrainerId: 0
   });
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const value = e.target.name === 'personalTrainerId' ? parseInt(e.target.value) || 0 : e.target.value;
-    setFormData({
-      ...formData,
-      [e.target.name]: value
+    const { name, value } = e.target;
+    setFormData(prev => {
+      if (name === 'personalTrainerId') {
+        return { ...prev, personalTrainerId: parseInt(value) || 0 };
+      }
+      return { ...prev, [name]: value };
     });
   };
 
@@ -52,22 +51,22 @@ export default function CreatePT() {
     setLoading(true);
     setError('');
     setSuccess(false);
-  
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);
       return;
     }
-  
-    if (!token) {
-      setError("You must be logged in to create a PT");
-      setLoading(false);
-      return;
-    }
-  
+
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      
+      if (!token) {
+        throw new Error('You must be logged in to create a PT');
+      }
+
       const { confirmPassword, ...apiData } = formData;
-  
+
       const response = await fetch('https://assignment2.swafe.dk/api/Users', {
         method: 'POST',
         headers: {
@@ -76,84 +75,124 @@ export default function CreatePT() {
         },
         body: JSON.stringify(apiData),
       });
-  
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to create PT');
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        console.error('Status:', response.status);
+        try {
+          const errorData = JSON.parse(errorText);
+          throw new Error(errorData.message || `Error ${response.status}: ${errorText}`);
+        } catch {
+          throw new Error(`Error ${response.status}: ${errorText || 'Failed to create PT'}`);
+        }
       }
-  
+
       setSuccess(true);
-  
+      
       setFormData({
-        name: '',
+        firstName: '',
+        lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
         accountType: 'PersonalTrainer',
-        personalTrainerId: 0,
+        personalTrainerId: 0
       });
-  
+      
       setTimeout(() => {
         router.push('/manager/pt-list');
       }, 2000);
-  
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
   };
-  
+
+  const inputStyle = {
+    width: '100%',
+    padding: '12px 16px',
+    border: '1px solid #d1d5db',
+    borderRadius: '6px',
+    fontSize: '14px',
+    fontFamily: 'Inter, sans-serif'
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '14px',
+    fontWeight: 500,
+    color: '#374151',
+    marginBottom: '8px'
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-6">
+    <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '24px' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '24px' }}>
           <Link 
             href="/manager"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+            style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              color: '#3b82f6', 
+              textDecoration: 'none',
+              marginBottom: '16px'
+            }}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft size={16} style={{ marginRight: '8px' }} />
             Back to Dashboard
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Add New Personal Trainer</h1>
-          <p className="text-gray-600 mt-2">Fill in the details to create a new PT account</p>
+          <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Add New Personal Trainer</h1>
+          <p style={{ color: '#666', marginTop: '8px' }}>Fill in the details to create a new PT account</p>
         </div>
 
         {success && (
-          <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6">
+          <div style={{ background: '#d1fae5', border: '1px solid #6ee7b7', color: '#047857', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
             PT created successfully! Redirecting to PT list...
           </div>
         )}
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6">
+          <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#b91c1c', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
-          <div className="space-y-6">
+        <form onSubmit={handleSubmit} style={{ background: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', padding: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name *
-              </label>
+              <label htmlFor="firstName" style={labelStyle}>First Name *</label>
               <input
                 type="text"
-                id="name"
-                name="name"
-                value={formData.name}
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
                 onChange={handleChange}
                 required
-                placeholder="John Smith"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="John"
+                style={inputStyle}
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email *
-              </label>
+              <label htmlFor="lastName" style={labelStyle}>Last Name *</label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+                placeholder="Smith"
+                style={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" style={labelStyle}>Email *</label>
               <input
                 type="email"
                 id="email"
@@ -162,14 +201,12 @@ export default function CreatePT() {
                 onChange={handleChange}
                 required
                 placeholder="john.smith@fitness.com"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={inputStyle}
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password *
-              </label>
+              <label htmlFor="password" style={labelStyle}>Password *</label>
               <input
                 type="password"
                 id="password"
@@ -179,14 +216,12 @@ export default function CreatePT() {
                 required
                 minLength={6}
                 placeholder="Minimum 6 characters"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={inputStyle}
               />
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password *
-              </label>
+              <label htmlFor="confirmPassword" style={labelStyle}>Confirm Password *</label>
               <input
                 type="password"
                 id="confirmPassword"
@@ -196,32 +231,28 @@ export default function CreatePT() {
                 required
                 minLength={6}
                 placeholder="Re-enter password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={inputStyle}
               />
             </div>
 
             <div>
-              <label htmlFor="accountType" className="block text-sm font-medium text-gray-700 mb-2">
-                Account Type *
-              </label>
+              <label htmlFor="accountType" style={labelStyle}>Account Type *</label>
               <select
                 id="accountType"
                 name="accountType"
                 value={formData.accountType}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
                 disabled
+                style={{ ...inputStyle, background: '#f9fafb', color: '#6b7280' }}
               >
                 <option value="PersonalTrainer">Personal Trainer</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">Account type is set to Personal Trainer</p>
+              <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>Account type is set to Personal Trainer</p>
             </div>
 
             <div>
-              <label htmlFor="personalTrainerId" className="block text-sm font-medium text-gray-700 mb-2">
-                Personal Trainer ID
-              </label>
+              <label htmlFor="personalTrainerId" style={labelStyle}>Personal Trainer ID</label>
               <input
                 type="number"
                 id="personalTrainerId"
@@ -230,32 +261,51 @@ export default function CreatePT() {
                 onChange={handleChange}
                 min="0"
                 placeholder="0"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={inputStyle}
               />
-              <p className="text-xs text-gray-500 mt-1">Leave as 0 for personal trainers</p>
+              <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>Leave as 0 for personal trainers</p>
             </div>
           </div>
 
-          <div className="mt-6 flex justify-end gap-4">
+          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
             <Link
               href="/manager"
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              style={{
+                padding: '10px 24px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                color: '#374151',
+                textDecoration: 'none',
+                display: 'inline-block'
+              }}
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center gap-2"
+              style={{
+                padding: '10px 24px',
+                background: loading ? '#93c5fd' : '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '14px'
+              }}
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 size={16} className="spinner" />
                   Creating...
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4" />
+                  <Save size={16} />
                   Create PT
                 </>
               )}

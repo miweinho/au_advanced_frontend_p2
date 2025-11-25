@@ -6,7 +6,8 @@ import { ArrowLeft, Search, Mail, Edit, Trash2, Loader2, UserPlus, User } from '
 
 interface User {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   accountType: string;
   personalTrainerId: number;
@@ -18,14 +19,16 @@ export default function PTList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     fetchUsers();
   }, []);
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       
       if (!token) {
         throw new Error('You must be logged in to view PTs');
@@ -59,7 +62,7 @@ export default function PTList() {
 
     setDeleteId(id);
     try {
-      const token = localStorage.getItem('token');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       
       if (!token) {
         throw new Error('You must be logged in to delete a PT');
@@ -86,147 +89,209 @@ export default function PTList() {
   };
 
   const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  if (!mounted) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-6">
+    <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '24px' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '24px' }}>
           <Link 
             href="/manager"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+            style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              color: '#3b82f6', 
+              textDecoration: 'none',
+              marginBottom: '16px'
+            }}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft size={16} style={{ marginRight: '8px' }} />
             Back to Dashboard
           </Link>
-          <div className="flex justify-between items-center">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Personal Trainers</h1>
-              <p className="text-gray-600 mt-2">Manage your team of personal trainers</p>
+              <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Personal Trainers</h1>
+              <p style={{ color: '#666', marginTop: '8px' }}>Manage your team of personal trainers</p>
             </div>
             <Link
               href="/manager/create-pt"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 20px',
+                background: '#3b82f6',
+                color: 'white',
+                borderRadius: '6px',
+                textDecoration: 'none'
+              }}
             >
-              <UserPlus className="w-5 h-5" />
+              <UserPlus size={20} />
               Add New PT
             </Link>
           </div>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6">
-            {error}
+          <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#b91c1c', padding: '16px', borderRadius: '8px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>{error}</span>
             <button 
               onClick={() => setError('')}
-              className="ml-4 text-red-600 hover:text-red-800 font-semibold"
+              style={{ background: 'none', border: 'none', color: '#b91c1c', fontWeight: 600, cursor: 'pointer' }}
             >
               Dismiss
             </button>
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <div style={{ background: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', padding: '16px', marginBottom: '24px' }}>
+          <div style={{ position: 'relative' }}>
+            <Search size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
             <input
               type="text"
               placeholder="Search by name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              style={{
+                width: '100%',
+                paddingLeft: '40px',
+                paddingRight: '16px',
+                paddingTop: '12px',
+                paddingBottom: '12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontFamily: 'Inter, sans-serif'
+              }}
             />
           </div>
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '48px' }}>
+            <Loader2 size={32} color="#3b82f6" className="spinner" />
           </div>
         ) : (
           <>
-            <div className="mb-4">
-              <p className="text-gray-600">
+            <div style={{ marginBottom: '16px' }}>
+              <p style={{ color: '#666' }}>
                 Showing {filteredUsers.length} of {users.length} personal trainers
               </p>
             </div>
 
             {filteredUsers.length === 0 ? (
-              <div className="bg-white rounded-lg shadow p-12 text-center">
-                <p className="text-gray-500 text-lg">
+              <div style={{ background: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', padding: '48px', textAlign: 'center' }}>
+                <p style={{ color: '#6b7280', fontSize: '18px' }}>
                   {searchTerm ? 'No personal trainers match your search' : 'No personal trainers found'}
                 </p>
                 {!searchTerm && (
                   <Link
                     href="/manager/create-pt"
-                    className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginTop: '16px',
+                      padding: '12px 20px',
+                      background: '#3b82f6',
+                      color: 'white',
+                      borderRadius: '6px',
+                      textDecoration: 'none'
+                    }}
                   >
-                    <UserPlus className="w-5 h-5" />
+                    <UserPlus size={20} />
                     Add Your First PT
                   </Link>
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
                 {filteredUsers.map((user) => (
-                  <div key={user.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                    <div className="p-6 border-b border-gray-200">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                            <User className="w-6 h-6 text-blue-600" />
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-bold text-gray-900">
-                              {user.name}
-                            </h3>
-                            <span className="inline-block mt-1 px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                              ID: {user.id}
-                            </span>
-                          </div>
+                  <div key={user.id} style={{ background: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+                    <div style={{ padding: '20px', borderBottom: '1px solid #e5e7eb' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '48px', height: '48px', background: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <User size={24} color="#3b82f6" />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
+                            {user.firstName} {user.lastName}
+                          </h3>
+                          <span style={{ display: 'inline-block', marginTop: '4px', padding: '2px 8px', background: '#dbeafe', color: '#1e40af', fontSize: '12px', borderRadius: '12px' }}>
+                            ID: {user.id}
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-6">
-                      <div className="space-y-3 mb-4">
-                        <div className="flex items-start text-gray-600">
-                          <Mail className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm break-all">{user.email}</span>
+                    <div style={{ padding: '20px' }}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', color: '#6b7280', marginBottom: '8px' }}>
+                          <Mail size={16} style={{ marginRight: '8px', marginTop: '2px', flexShrink: 0 }} />
+                          <span style={{ fontSize: '14px', wordBreak: 'break-all' }}>{user.email}</span>
                         </div>
                       </div>
 
-                      <div className="space-y-2">
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div>
-                          <p className="text-xs text-gray-500">Account Type</p>
-                          <p className="text-sm font-medium text-gray-900">{user.accountType}</p>
+                          <p style={{ fontSize: '12px', color: '#6b7280', margin: 0 }}>Account Type</p>
+                          <p style={{ fontSize: '14px', fontWeight: 500, color: '#1a1a1a', margin: 0 }}>{user.accountType}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Trainer ID</p>
-                          <p className="text-sm font-medium text-gray-900">{user.personalTrainerId}</p>
+                          <p style={{ fontSize: '12px', color: '#6b7280', margin: 0 }}>Trainer ID</p>
+                          <p style={{ fontSize: '14px', fontWeight: 500, color: '#1a1a1a', margin: 0 }}>{user.personalTrainerId}</p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-4 bg-gray-50 border-t border-gray-200 flex gap-2">
+                    <div style={{ padding: '16px', background: '#f9fafb', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '8px' }}>
                       <Link
                         href={`/manager/edit-pt/${user.id}`}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          padding: '8px 16px',
+                          background: 'white',
+                          border: '1px solid #d1d5db',
+                          color: '#374151',
+                          borderRadius: '6px',
+                          textDecoration: 'none'
+                        }}
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit size={16} />
                         Edit
                       </Link>
                       <button
                         onClick={() => handleDelete(user.id)}
                         disabled={deleteId === user.id}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-50 border border-red-200 text-red-700 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          padding: '8px 16px',
+                          background: '#fee2e2',
+                          border: '1px solid #fca5a5',
+                          color: '#b91c1c',
+                          borderRadius: '6px',
+                          cursor: deleteId === user.id ? 'not-allowed' : 'pointer',
+                          opacity: deleteId === user.id ? 0.5 : 1
+                        }}
                       >
                         {deleteId === user.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <Loader2 size={16} className="spinner" />
                         ) : (
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 size={16} />
                         )}
                         Delete
                       </button>
