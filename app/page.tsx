@@ -3,7 +3,7 @@
 // ...existing code...
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import LoginPage from './auth/login';
+import LoginPage from './api/auth/login';
 
 export default function HomePage() {
   const router = useRouter();

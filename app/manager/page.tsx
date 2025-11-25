@@ -18,7 +18,7 @@ export default function ManagerHome() {
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       if (token) {
-        const response = await fetch('https://assignment2.swafe.dk/api/Users', {
+        const response = await fetch('https://assignment2.swafe.dk/api/Users/', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.ok) {

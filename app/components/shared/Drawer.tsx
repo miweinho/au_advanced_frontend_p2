@@ -14,6 +14,7 @@ import {
 import { Dashboard, FitnessCenter, CalendarMonth, BarChart, Settings, People, Group, ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { Plus } from 'lucide-react';
 
 type MenuItem = { text: string; icon: React.ReactNode; path: string };
 
@@ -45,9 +46,8 @@ function getMenuItemsByRole(role: string | null): MenuItem[] {
 
   const managerMenu: MenuItem[] = [
     { text: 'Dashboard', icon: <Dashboard />, path: '/manager' },
-    { text: 'User Management', icon: <People />, path: '/manager/users' },
-    { text: 'Reports', icon: <BarChart />, path: '/manager/reports' },
-    { text: 'Settings', icon: <Settings />, path: '/manager/settings' },
+    { text: 'PT List', icon: <People />, path: '/manager/pt-list' },
+    { text: 'Add PT', icon: <Plus />, path: '/manager/create-pt' },
   ];
 
   if (role === 'Trainer') return trainerMenu;
