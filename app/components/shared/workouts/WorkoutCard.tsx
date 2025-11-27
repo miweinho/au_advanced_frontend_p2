@@ -2,7 +2,7 @@
 
 import { Card, CardContent, Typography, Box, Chip, Button, alpha } from '@mui/material';
 import { FitnessCenter, ArrowForward, Schedule } from '@mui/icons-material';
-import { WorkoutProgram } from '../../types/workout';
+import { WorkoutProgram } from '../../../client/types/workout';
 
 interface WorkoutCardProps {
   program: WorkoutProgram;

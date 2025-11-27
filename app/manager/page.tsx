@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { api } from '@/lib/api';
+import { useAuth } from '@/app/ui/AuthProvider';
 import Link from 'next/link';
 import { Users, UserPlus, BarChart3, Calendar } from 'lucide-react';
 
@@ -18,11 +20,9 @@ export default function ManagerHome() {
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       if (token) {
-        const response = await fetch('https://assignment2.swafe.dk/api/Users/', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (response.ok) {
-          const users = await response.json();
+        const response = await api.get('/api/Users');
+        if (response.status === 200) {
+          const users = response.data;
           const pts = users.filter((u: any) => u.accountType === 'PersonalTrainer').length;
           const clients = users.filter((u: any) => u.accountType === 'Client').length;
           setStats({ totalPTs: pts, totalClients: clients });

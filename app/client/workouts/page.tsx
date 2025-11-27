@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import { Container, Typography, Box, Paper, Grid } from '@mui/material';
 import { FitnessCenter, Schedule, TrendingUp } from '@mui/icons-material';
-import axios from 'axios';
+import { api } from '@/lib/api';
+import { useAuth } from '@/app/ui/AuthProvider';
 import { WorkoutProgram } from '../types/workout';
-import WorkoutList from '../components/workouts/WorkoutList';
-import WorkoutDetails from '../components/workouts/WorkoutDetails';
-import EmptyState from '../components/EmptyState';
-import LoadingState from '../components/LoadingState';
+import WorkoutList from '../../components/shared/workouts/WorkoutList';
+import WorkoutDetails from '../../components/shared/workouts/WorkoutDetails';
+import EmptyState from '../../components/shared/EmptyState';
+import LoadingState from '../../components/shared/LoadingState';
 
 export default function WorkoutsPage() {
   const [programs, setPrograms] = useState<WorkoutProgram[]>([]);
@@ -18,26 +19,21 @@ export default function WorkoutsPage() {
 
   useEffect(() => {
     setMounted(true);
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) {
       setLoading(false);
       return;
     }
 
-    axios.get("https://assignment2.swafe.dk/api/WorkoutPrograms", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "text/plain"
-      }
-    })
-    .then(res => {
-      setPrograms(res.data);
-      setLoading(false);
-    })
-    .catch(err => {
-      console.error(err);
-      setLoading(false);
-    });
+    api.get<WorkoutProgram[]>('/api/WorkoutPrograms')
+      .then(res => {
+        setPrograms(res.data || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err?.response ?? err);
+        setLoading(false);
+      });
   }, []);
 
   const handleBackToList = () => {

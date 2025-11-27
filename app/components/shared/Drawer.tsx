@@ -11,7 +11,7 @@ import {
   ListItemText,
   IconButton
 } from '@mui/material';
-import { Dashboard, FitnessCenter, CalendarMonth, BarChart, Settings, People, Group, ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { Dashboard, FitnessCenter, CalendarMonth, BarChart, Settings, People, Group, ChevronLeft, ChevronRight, SportsGymnastics } from '@mui/icons-material';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
@@ -40,8 +40,9 @@ function getMenuItemsByRole(role: string | null): MenuItem[] {
     { text: 'Dashboard', icon: <Dashboard />, path: '/trainer' },
     { text: 'Clients', icon: <Group />, path: '/trainer/clients' },
     { text: 'Schedule', icon: <CalendarMonth />, path: '/trainer/schedule' },
-    { text: 'Programs', icon: <FitnessCenter />, path: '/trainer/programs' },
-    { text: 'Settings', icon: <Settings />, path: '/trainer/settings' },
+    { text: 'Workouts', icon: <FitnessCenter />, path: '/trainer/workouts' },
+    { text: 'Exercises', icon: <SportsGymnastics />, path: '/trainer/exercises' },
+    
   ];
 
   const managerMenu: MenuItem[] = [
@@ -50,7 +51,7 @@ function getMenuItemsByRole(role: string | null): MenuItem[] {
     { text: 'Add PT', icon: <Plus />, path: '/manager/create-pt' },
   ];
 
-  if (role === 'Trainer') return trainerMenu;
+  if (role === 'PersonalTrainer') return trainerMenu;
   if (role === 'Manager') return managerMenu;
   return clientMenu;
 }

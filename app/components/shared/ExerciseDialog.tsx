@@ -19,7 +19,7 @@ import {
   SportsGymnastics,
   Info
 } from '@mui/icons-material';
-import { Exercise } from '../types/workout';
+import { Exercise } from '../../client/types/workout';
 
 interface ExerciseDialogProps {
   exercise: Exercise | null;

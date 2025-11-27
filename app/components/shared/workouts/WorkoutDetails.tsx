@@ -21,16 +21,19 @@ import {
   SportsGymnastics,
   PlayArrow
 } from '@mui/icons-material';
-import { WorkoutProgram, Exercise } from '../../../types/workout';
+import { WorkoutProgram, Exercise } from '../../../client/types/workout';
 import ExerciseDialog from '../ExerciseDialog';
+import EditWorkoutForm from './EditWorkoutForm';
 
 interface WorkoutDetailsProps {
   program: WorkoutProgram;
   onBack: () => void;
+  canEdit?: boolean;
 }
 
-export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps) {
+export default function WorkoutDetails({ program, onBack, canEdit = false }: WorkoutDetailsProps) {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [editing, setEditing] = useState(false);
 
   const handleExerciseClick = (exercise: Exercise) => {
     setSelectedExercise(exercise);
@@ -41,15 +44,17 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
     alert(`Starting workout: ${program.name}`);
   };
 
+  const handleSaved = (updated: WorkoutProgram) => {
+    // You can update local state or notify parent to refetch
+    // e.g., setProgram(updated) if you lift program into state
+    console.log('saved', updated);
+  };
+
   return (
     <>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={onBack}
-          sx={{ mb: 3, textTransform: 'none' }}
-        >
+        <Button startIcon={<ArrowBack />} onClick={onBack} sx={{ mb: 3, textTransform: 'none' }}>
           Back to list
         </Button>
 
@@ -83,21 +88,28 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
             </Box>
           </Box>
 
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<PlayArrow />}
-            onClick={handleStartWorkout}
-            sx={{
-              borderRadius: 3,
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 4,
-              py: 1.5
-            }}
-          >
-            Start Workout
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            {canEdit && (
+              <Button variant="outlined" onClick={() => setEditing(true)} sx={{ textTransform: 'none' }}>
+                Edit
+              </Button>
+            )}
+            <Button
+              variant="contained"
+              size="large"
+              startIcon={<PlayArrow />}
+              onClick={handleStartWorkout}
+              sx={{
+                borderRadius: 3,
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 4,
+                py: 1.5
+              }}
+            >
+              Start Workout
+            </Button>
+          </Box>
         </Box>
       </Box>
 
@@ -238,53 +250,7 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
             border: `1px solid ${alpha('#667eea', 0.1)}`
           }}
         >
-          <CardContent sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-              Workout Summary
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3}>
-                <Box>
-                  <Typography variant="caption" color="text.secondary">
-                    Total Exercises
-                  </Typography>
-                  <Typography variant="h6" fontWeight={600}>
-                    {program.exercises.length}
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Box>
-                  <Typography variant="caption" color="text.secondary">
-                    Total Sets
-                  </Typography>
-                  <Typography variant="h6" fontWeight={600}>
-                    {program.exercises.reduce((total, ex) => total + ex.sets, 0)}
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Box>
-                  <Typography variant="caption" color="text.secondary">
-                    Estimated Time
-                  </Typography>
-                  <Typography variant="h6" fontWeight={600}>
-                    45-60 min
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Box>
-                  <Typography variant="caption" color="text.secondary">
-                    Level
-                  </Typography>
-                  <Typography variant="h6" fontWeight={600}>
-                    Beginner
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
-          </CardContent>
+          
         </Card>
       )}
 
@@ -294,6 +260,8 @@ export default function WorkoutDetails({ program, onBack }: WorkoutDetailsProps)
         open={!!selectedExercise}
         onClose={() => setSelectedExercise(null)}
       />
+
+      <EditWorkoutForm open={editing} program={program} onClose={() => setEditing(false)} onSaved={handleSaved} />
     </>
   );
 }

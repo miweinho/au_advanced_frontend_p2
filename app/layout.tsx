@@ -1,6 +1,7 @@
 import "./globals.css";
 import EmotionRegistry from "./EmotionRegistry";
 import Shell from "./components/Shell";
+import { AuthProvider } from "./ui/AuthProvider";
 
 export const metadata = {
   title: "AU 25 Advanced Frontend Group 31",
@@ -17,8 +18,11 @@ export default function RootLayout({
       <body>
         {/* Emotion/Theme providers kept at root */}
         <EmotionRegistry>
-          {/* Shell decides whether to show the global AppBar/Drawer or render children (login) */}
-          <Shell>{children}</Shell>
+          {/* Provide auth to the whole app (token normalization, set axios header) */}
+          <AuthProvider>
+            {/* Shell decides whether to show the global AppBar/Drawer or render children (login) */}
+            <Shell>{children}</Shell>
+          </AuthProvider>
         </EmotionRegistry>
       </body>
     </html>

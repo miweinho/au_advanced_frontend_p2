@@ -1,17 +1,19 @@
 export interface Exercise {
-  exerciseId: string;
-  name: string;
-  description?: string;
-  sets: number;
-  repetitions: number;
-  restTime?: number;
-  difficulty?: string;
-  instructions?: string;
+  exerciseId: number | null;
+  name: string | null;
+  description?: string | null;
+  sets?: number | null;
+  repetitions?: number | null;
+  time?: string | null;
+  workoutProgramId?: number | null;
+  personalTrainerId?: number | null;
 }
 
 export interface WorkoutProgram {
-  workoutProgramId: string;
-  name: string;
-  description?: string;
-  exercises: Exercise[];
+  workoutProgramId: number | null;
+  name: string | null;
+  description?: string | null;
+  exercises?: Exercise[] | null;
+  personalTrainerId?: number | null;
+  clientId?: number | null;
 }

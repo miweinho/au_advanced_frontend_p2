@@ -1,7 +1,7 @@
 'use client';
 
 import { Grid } from '@mui/material';
-import { WorkoutProgram } from '../../types/workout';
+import { WorkoutProgram } from '../../../client/types/workout';
 import WorkoutCard from './WorkoutCard';
 
 interface WorkoutListProps {

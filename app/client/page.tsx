@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { Container } from '@mui/material';
-import axios from 'axios';
+import { api } from '@/lib/api';
 import { useUI } from '../components/ui/UIContext';
 import { WorkoutProgram } from './types/workout';
 import DashboardContent from './components/Dashboard/DashboardContent';
-import LoadingState from './components/LoadingState';
+import LoadingState from '../components/shared/LoadingState';
 
 export default function DashboardPage() {
   const pageTitle = "Workout Dashboard";
@@ -20,30 +20,11 @@ export default function DashboardPage() {
     setTitle(pageTitle);
 
     // Shell should guarantee auth; we simply read token and fetch data
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-
-    if (!token) {
-      // if no token unexpectedly present, stop loading to avoid spinner loop
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
-    axios.get("https://assignment2.swafe.dk/api/WorkoutPrograms", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "text/plain"
-      }
-    })
-    .then(res => {
-      setPrograms(res.data || []);
-    })
-    .catch(err => {
-      console.error(err);
-    })
-    .finally(() => {
-      setLoading(false);
-    });
+    api.get<WorkoutProgram[]>('/api/WorkoutPrograms')
+      .then(res => setPrograms(res.data || []))
+      .catch(err => console.error(err?.response ?? err))
+      .finally(() => setLoading(false));
   }, [setShowShell, setTitle]);
 
   // During SSR, show a generic loading state

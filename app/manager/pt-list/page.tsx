@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { api } from '@/lib/api';
 import Link from 'next/link';
 import { ArrowLeft, Search, Mail, Edit, Trash2, Loader2, UserPlus, User } from 'lucide-react';
 
@@ -34,17 +35,8 @@ export default function PTList() {
         throw new Error('You must be logged in to view PTs');
       }
 
-      const response = await fetch('https://assignment2.swafe.dk/api/Users', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch users');
-      }
-      
-      const data = await response.json();
+      const response = await api.get('/api/Users');
+      const data = response.data;
       const trainers = data.filter((user: User) => user.accountType === 'PersonalTrainer');
       setUsers(trainers);
       
@@ -68,16 +60,8 @@ export default function PTList() {
         throw new Error('You must be logged in to delete a PT');
       }
 
-      const response = await fetch(`https://assignment2.swafe.dk/api/Users/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete trainer');
-      }
+      const response = await api.delete(`/api/Users/${id}`);
+      if (response.status !== 200) throw new Error('Failed to delete trainer');
 
       setUsers(users.filter(user => user.id !== id));
       

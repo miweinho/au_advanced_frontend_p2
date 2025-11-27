@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
@@ -60,32 +61,12 @@ export default function CreatePT() {
 
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      
-      if (!token) {
-        throw new Error('You must be logged in to create a PT');
-      }
+      if (!token) throw new Error('You must be logged in to create a PT');
 
       const { confirmPassword, ...apiData } = formData;
-
-      const response = await fetch('https://assignment2.swafe.dk/api/Users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(apiData),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error Response:', errorText);
-        console.error('Status:', response.status);
-        try {
-          const errorData = JSON.parse(errorText);
-          throw new Error(errorData.message || `Error ${response.status}: ${errorText}`);
-        } catch {
-          throw new Error(`Error ${response.status}: ${errorText || 'Failed to create PT'}`);
-        }
+      const response = await api.post('/api/Users', apiData);
+      if (response.status !== 200) {
+        throw new Error(`API error: ${response.status}`);
       }
 
       setSuccess(true);

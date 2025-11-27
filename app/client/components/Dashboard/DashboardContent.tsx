@@ -9,7 +9,7 @@ import {
   AccessTime
 } from '@mui/icons-material';
 import { WorkoutProgram } from '../../types/workout';
-import WorkoutList from '../workouts/WorkoutList';
+import WorkoutList from '../../../components/shared/workouts/WorkoutList';
 
 interface DashboardContentProps {
   programs: WorkoutProgram[];
