@@ -1,7 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { setAuthToken } from '@/lib/api';
+import { api } from '@/lib/api';
+import { useRouter, usePathname } from 'next/navigation';
 
 type AuthContextValue = {
   token?: string | null;
@@ -21,7 +23,7 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // helper: decode base64url JWT payload safely in browser
   const decodeJwtPayload = (tok?: string | null): unknown | null => {
     if (!tok) return null;
@@ -97,11 +99,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setTokenState] = useState<string | null>(_initial.token);
 
   const [role, setRole] = useState<string | null>(() => {
-    // prefer payload role, fallback to readable cookie
     if (_initial.role) return _initial.role;
-    if (typeof window === 'undefined') return null;
-    const match = document.cookie.match(/(?:^|; )role=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : null;
+    return null;
   });
 
   const [user, setUser] = useState<unknown | null>(_initial.payload);
@@ -109,6 +108,116 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<number | null>(() =>
     _initial.payload ? extractUserId(_initial.payload) : null
   );
+
+  // guard to avoid redirect loop
+  const redirectRef = useRef(false);
+  const hasAutoNavigatedRef = useRef(false);
+
+  // make logout stable and available
+  const logout = useCallback(() => {
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+    } catch {}
+    setTokenState(null);
+    setUser(null);
+    setUserId(null);
+    setRole(null);
+    setAuthToken(undefined);
+  }, []);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const validatingRef = useRef(false);
+
+  const parseJwt = (token?: string | null) => {
+    if (!token) return null;
+    try {
+      const base = token.split('.')[1];
+      const json = decodeURIComponent(
+        atob(base.replace(/-/g, '+').replace(/_/g, '/'))
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(json);
+    } catch {
+      return null;
+    }
+  };
+
+  const isJwtExpired = (token?: string | null) => {
+    const payload = parseJwt(token);
+    if (!payload) return true;
+    const exp = Number(payload.exp || payload.Exp || 0);
+    if (!exp) return true;
+    return Date.now() / 1000 >= exp;
+  };
+
+  // Auto-navigate on mount if token exists (page refresh scenario)
+  useEffect(() => {
+    if (hasAutoNavigatedRef.current) return;
+    if (!token || !role) return;
+
+    hasAutoNavigatedRef.current = true;
+
+    // Only auto-navigate if we're on the root page
+    if (typeof window !== 'undefined' && window.location.pathname === '/') {
+      const roleLower = role.toLowerCase();
+      if (roleLower.includes('manager')) {
+        router.push('/manager');
+      } else if (roleLower.includes('trainer') || roleLower.includes('personal')) {
+        router.push('/trainer');
+      } else if (roleLower.includes('client')) {
+        router.push('/client');
+      }
+    }
+  }, [token, role, router]);
+
+  // global axios response interceptor (simplified & guarded)
+  useEffect(() => {
+    if (!api) return;
+    const interceptor = api.interceptors.response.use(
+      (res) => res,
+      (error) => {
+        const status = error?.response?.status;
+        const cfg = error?.config || {};
+        
+        // skip handling if request explicitly opted out (login/auth endpoints)
+        const skipHeader = cfg.headers?.['X-Skip-Auth-Handler'] || cfg.headers?.['x-skip-auth-handler'];
+        if (skipHeader) return Promise.reject(error);
+        
+        if (status !== 401) return Promise.reject(error);
+        if (validatingRef.current) return Promise.reject(error);
+        validatingRef.current = true;
+        try {
+          const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+          const expired = isJwtExpired(localToken);
+          if (expired) {
+            // clear auth
+            try { logout(); } catch (e) { console.error(e); }
+
+            // only redirect once and only if we are not already on a safe auth route
+            // avoid redirecting when the app is already on '/' (login handled there)
+            const safePrefixes = ["/", "/auth", "/login", "/signup"];
+            const isSafe = safePrefixes.some((p) => pathname?.startsWith(p));
+            if (!isSafe && !redirectRef.current) {
+              redirectRef.current = true;
+              try { router.replace("/"); } catch {}
+              // reset guard after short delay so subsequent real navigations still work
+              setTimeout(() => { redirectRef.current = false; }, 1000);
+            }
+          }
+          return Promise.reject(error);
+        } finally {
+          validatingRef.current = false;
+        }
+      }
+    );
+    return () => {
+      try { api.interceptors.response.eject(interceptor); } catch {}
+    };
+  }, [logout, router, pathname]);
 
   useEffect(() => {
     // ensure axios has the Authorization header set whenever token changes
@@ -164,37 +273,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = (tokenOrObj: string | { jwt?: string }, roleArg?: string) => {
-    const t =
-      typeof tokenOrObj === 'string' ? tokenOrObj : tokenOrObj.jwt;
+    const t = typeof tokenOrObj === 'string' ? tokenOrObj : tokenOrObj.jwt;
     setToken(t ?? null);
 
-    if (roleArg) {
-      setRole(roleArg);
-    } else if (typeof window !== 'undefined') {
-      const match = document.cookie.match(/(?:^|; )role=([^;]+)/);
-      if (match) setRole(decodeURIComponent(match[1]));
-    }
-  };
+    // derive role from token payload or arg
+    const payload = decodeJwtPayload(t);
+    const finalRole = roleArg || getPayloadRole(payload) || '';
+    setRole(finalRole);
 
-  const logout = () => {
-    setToken(null);
-    setRole(null);
-    setUser(null);
-    // role cookie will be cleared by the effect watching `role`
-    // Note: server-set HttpOnly token cookie can't be removed from client. You may call a logout API route to clear server cookie.
-  };
-
-  // reflect `role` changes into a readable cookie for other clients/middleware conveniences
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (role) {
-      document.cookie = `role=${encodeURIComponent(
-        role
-      )}; path=/; max-age=${60 * 60 * 24 * 7}`;
+    // AUTO-NAVIGATE based on role
+    const roleLower = finalRole.toLowerCase();
+    if (roleLower.includes('manager')) {
+      router.push('/manager');
+    } else if (roleLower.includes('trainer') || roleLower.includes('personal')) {
+      router.push('/trainer');
     } else {
-      document.cookie = 'role=; path=/; max-age=0';
+      router.push('/client');
     }
-  }, [role]);
+  };
+
+
 
   const isTrainer = useMemo(() => {
     // prefer role claim from token payload, fallback to role cookie

@@ -1,53 +1,41 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Container, TextField, Button, Typography, Box } from '@mui/material';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
-import { useUI } from '../../components/ui/UIContext';
+import { useState } from 'react';
+import { TextField, Button, Box, Typography, Alert, Container } from '@mui/material';
+import { useAuth } from '@/app/ui/AuthProvider';
+import { api } from '@/lib/api';
 
-interface LoginFormProps {
-  onLogin?: (token: string, role: string) => void;
-}
-
-export default function LoginPage({ onLogin }: LoginFormProps) {
-  const { setShowShell, setTitle } = useUI();
+export default function LoginPage() {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
-  useEffect(() => {
-    setShowShell(false);
-    setTitle('Login');
-  }, [setShowShell, setTitle]);
-
-  const handleLogin = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
     setLoading(true);
+
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
-      if (!res.data?.ok) throw new Error(res.data?.error || 'Login failed');
+      // Call backend directly with skip header so interceptor doesn't interfere
+      const response = await api.post(
+        '/api/Users/login',
+        { email, password },
+        { headers: { 'X-Skip-Auth-Handler': '1' } }
+      );
 
-      const role: string = res.data.role;
-      const token: string = res.data.token;
-
-      // keep localStorage for existing client-side code compatibility
-      try {
-        localStorage.setItem('token', token);
-        localStorage.setItem('role', role);
-      } catch {
-        // ignore storage errors
-      }
-
-      // call optional parent handler
-      if (onLogin) onLogin(token, role);
-
-      // navigate to role base
-      const base = role === 'Trainer' ? '/trainer' : role === 'Manager' ? '/manager' : '/client';
-      router.replace(base);
-    } catch (err) {
-      console.error(err);
-      alert('Invalid credentials or server error');
+      const data = response.data;
+      const token = data?.token || data?.jwt || data;
+      
+      // AuthProvider.login() will:
+      // - Store token in localStorage
+      // - Parse role from JWT
+      // - Navigate based on role
+      login(token);
+    } catch (err: any) {
+      const remote = err?.response?.data;
+      setError(remote?.title || remote?.message || err?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -67,7 +55,7 @@ export default function LoginPage({ onLogin }: LoginFormProps) {
         <TextField label="Email" fullWidth margin="normal" value={email} onChange={(e) => setEmail(e.target.value)} />
         <TextField label="Password" type="password" fullWidth margin="normal" value={password} onChange={(e) => setPassword(e.target.value)} />
 
-        <Button variant="contained" color="primary" fullWidth sx={{ mt: 2 }} onClick={handleLogin} disabled={loading}>
+        <Button variant="contained" color="primary" fullWidth sx={{ mt: 2 }} onClick={handleSubmit} disabled={loading}>
           Submit
         </Button>
       </Box>

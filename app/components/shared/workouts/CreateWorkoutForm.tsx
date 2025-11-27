@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -22,16 +22,19 @@ import {
   Typography,
 } from "@mui/material";
 import { api } from "@/lib/api";
-import { WorkoutProgram, Exercise } from "@/app/client/types/workout";
+import { WorkoutProgram, Exercise } from "@/app/components/shared/types/workout";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 
 type ClientItem = {
-  id: number;
+  userId: number;
   firstName?: string;
   lastName?: string;
   email?: string;
+  password?: string | null;
+  personalTrainerId?: number | null;
+  accountType?: string | null;
 };
 
 type Props = {
@@ -44,14 +47,28 @@ export default function CreateWorkoutForm({ open, onClose, onCreated }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [clients, setClients] = useState<ClientItem[]>([]);
-  const [clientId, setClientId] = useState<number | null>(null);
+  // keep select values as strings to avoid NaN issues with MUI Select
+  const [clientId, setClientId] = useState<string>("");
 
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
-  const [exerciseToAdd, setExerciseToAdd] = useState<number | "">( "");
+  const [exerciseToAdd, setExerciseToAdd] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [loadingLists, setLoadingLists] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // compute available exercises (exclude already selected)
+  const availableExercises = useMemo(
+    () => exercises.filter((e) => !selectedExercises.some((s) => s.exerciseId === e.exerciseId)),
+    [exercises, selectedExercises]
+  );
+
+  // clear selection if the chosen id is no longer available
+  useEffect(() => {
+    if (exerciseToAdd && !availableExercises.some((a) => String(a.exerciseId) === exerciseToAdd)) {
+      setExerciseToAdd("");
+    }
+  }, [exerciseToAdd, availableExercises]);
 
   useEffect(() => {
     if (!open) return;
@@ -82,7 +99,7 @@ export default function CreateWorkoutForm({ open, onClose, onCreated }: Props) {
     if (!open) {
       setName("");
       setDescription("");
-      setClientId(null);
+      setClientId("");
       setSelectedExercises([]);
       setExerciseToAdd("");
       setError(null);
@@ -93,6 +110,7 @@ export default function CreateWorkoutForm({ open, onClose, onCreated }: Props) {
     if (!exerciseToAdd) return;
     const ex = exercises.find((x) => x.exerciseId === Number(exerciseToAdd));
     if (!ex) return;
+    // duplicate check (extra safety)
     if (selectedExercises.some((s) => s.exerciseId === ex.exerciseId)) {
       setExerciseToAdd("");
       return;
@@ -108,19 +126,30 @@ export default function CreateWorkoutForm({ open, onClose, onCreated }: Props) {
   const handleSubmit = async () => {
     setError(null);
     if (!name.trim()) {
-      setError("Name ist erforderlich.");
+      setError("Name is required.");
       return;
     }
-    if (clientId == null) {
-      setError("Bitte einen Client auswählen.");
+    if (clientId === "") {
+      setError("Please select a client.");
       return;
     }
+
+    // include full exercise objects in the payload (not only ids)
+    const exercisesPayload = (selectedExercises ?? []).map((e) => ({
+      exerciseId: e.exerciseId,
+      name: e.name ?? "",
+      description: e.description ?? "",
+      sets: e.sets ?? 0,
+      repetitions: e.repetitions ?? 0,
+      time: e.time ?? "",
+      workoutProgramId: e.workoutProgramId ?? null,
+      personalTrainerId: e.personalTrainerId ?? null,
+    }));
 
     const payload = {
       name: name.trim(),
       description: description?.trim() ?? "",
-      // send exercises as array (we keep only ids to be safe)
-      exercises: (selectedExercises ?? []).map((e) => ({ exerciseId: e.exerciseId })),
+      exercises: exercisesPayload,
       clientId: Number(clientId),
     };
 
@@ -136,7 +165,7 @@ export default function CreateWorkoutForm({ open, onClose, onCreated }: Props) {
     } catch (err: any) {
       console.error("Create workout failed", err);
       const remote = err?.response?.data;
-      setError(remote?.title ?? remote?.message ?? err?.message ?? "Fehler beim Erstellen");
+      setError(remote?.title ?? remote?.message ?? err?.message ?? "Failed to create workout");
     } finally {
       setLoading(false);
     }
@@ -145,7 +174,7 @@ export default function CreateWorkoutForm({ open, onClose, onCreated }: Props) {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle>
-        Neues Workout erstellen
+        Create New Workout
         <IconButton aria-label="close" onClick={onClose} sx={{ position: "absolute", right: 8, top: 8 }}>
           <CloseIcon />
         </IconButton>
@@ -160,7 +189,7 @@ export default function CreateWorkoutForm({ open, onClose, onCreated }: Props) {
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth required />
             <TextField
-              label="Beschreibung"
+              label="Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               fullWidth
@@ -169,21 +198,26 @@ export default function CreateWorkoutForm({ open, onClose, onCreated }: Props) {
             />
 
             <FormControl fullWidth size="small">
-              <InputLabel id="client-select-label">Client auswählen</InputLabel>
+              <InputLabel id="client-select-label">Select client</InputLabel>
               <Select
                 labelId="client-select-label"
-                value={clientId ?? ""}
-                label="Client auswählen"
-                onChange={(e) => setClientId(e.target.value === "" ? null : Number(e.target.value))}
+                value={clientId}
+                label="Select client"
+                onChange={(e) => setClientId(String(e.target.value))}
               >
                 <MenuItem value="">
-                  <em>— auswählen —</em>
+                  <em>— select —</em>
                 </MenuItem>
-                {clients.map((c) => (
-                  <MenuItem key={c.id} value={c.id}>
-                    {c.firstName || ""} {c.lastName || ""} {c.email ? `(${c.email})` : ""}
-                  </MenuItem>
-                ))}
+                {clients.map((c) => {
+                  // use userId from API (avoid undefined keys)
+                  if (c.userId == null) return null;
+                  const label = `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim() || c.email || String(c.userId);
+                  return (
+                    <MenuItem key={String(c.userId)} value={String(c.userId)}>
+                      {label} {c.email ? `(${c.email})` : ""}
+                    </MenuItem>
+                  );
+                })}
               </Select>
             </FormControl>
 
@@ -197,35 +231,51 @@ export default function CreateWorkoutForm({ open, onClose, onCreated }: Props) {
                     labelId="exercise-add-label"
                     value={exerciseToAdd}
                     label="Exercise"
-                    onChange={(e) => setExerciseToAdd(e.target.value as number | "")}
+                    onChange={(e) => setExerciseToAdd(String(e.target.value))}
                   >
                     <MenuItem value="">
-                      <em>— auswählen —</em>
+                      <em>— select —</em>
                     </MenuItem>
-                    {exercises.map((ex) => (
-                      <MenuItem key={ex.exerciseId} value={ex.exerciseId}>
-                        {ex.name}
+
+                    {availableExercises.length === 0 ? (
+                      <MenuItem value="" disabled>
+                        <em>No exercises available</em>
                       </MenuItem>
-                    ))}
+                    ) : (
+                      availableExercises.map((ex) => (
+                        <MenuItem key={String(ex.exerciseId)} value={String(ex.exerciseId)}>
+                          {ex.name}
+                        </MenuItem>
+                      ))
+                    )}
                   </Select>
                 </FormControl>
 
-                <Button variant="outlined" startIcon={<AddIcon />} onClick={handleAddExercise} disabled={!exerciseToAdd}>
-                  Hinzufügen
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={handleAddExercise}
+                  disabled={!exerciseToAdd}
+                  aria-label="add-exercise"
+                >
+                  Add
                 </Button>
               </Box>
 
               <List dense>
                 {selectedExercises.map((ex) => (
                   <ListItem
-                    key={ex.exerciseId}
+                    key={String(ex.exerciseId)}
                     secondaryAction={
                       <IconButton edge="end" aria-label="remove" onClick={() => handleRemoveExercise(ex.exerciseId)}>
                         <RemoveCircleOutlineIcon />
                       </IconButton>
                     }
                   >
-                    <ListItemText primary={ex.name ?? "—"} secondary={`Sets: ${ex.sets ?? "-"} • Reps: ${ex.repetitions ?? "-"} • Time: ${ex.time ?? "-"}`} />
+                    <ListItemText
+                      primary={ex.name ?? "—"}
+                      secondary={`Sets: ${ex.sets ?? "-"} • Reps: ${ex.repetitions ?? "-"} • Time: ${ex.time ?? "-"}`}
+                    />
                   </ListItem>
                 ))}
               </List>
@@ -242,10 +292,10 @@ export default function CreateWorkoutForm({ open, onClose, onCreated }: Props) {
 
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>
-          Abbrechen
+          Cancel
         </Button>
         <Button variant="contained" onClick={handleSubmit} disabled={loading}>
-          {loading ? <CircularProgress size={18} /> : "Erstellen"}
+          {loading ? <CircularProgress size={18} /> : "Create"}
         </Button>
       </DialogActions>
     </Dialog>

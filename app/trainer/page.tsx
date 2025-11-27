@@ -16,7 +16,7 @@ import {
 import { People, FitnessCenter, Schedule } from '@mui/icons-material';
 import { api } from '@/lib/api';
 import { useUI } from '../components/ui/UIContext';
-import { WorkoutProgram } from '../client/types/workout';
+import { WorkoutProgram } from '../components/shared/types/workout';
 
 export default function TrainerWelcomePage() {
   const { setShowShell, setTitle } = useUI();

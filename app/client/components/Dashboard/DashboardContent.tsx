@@ -8,7 +8,7 @@ import {
   EmojiEvents,
   AccessTime
 } from '@mui/icons-material';
-import { WorkoutProgram } from '../../types/workout';
+import { WorkoutProgram } from '../../../components/shared/types/workout';
 import WorkoutList from '../../../components/shared/workouts/WorkoutList';
 
 interface DashboardContentProps {

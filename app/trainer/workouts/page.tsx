@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react";
 import { api } from '@/lib/api';
 import { useAuth } from '@/app/ui/AuthProvider';
-import { Container, Typography, Box, Paper, Grid, Button } from "@mui/material";
+import { Container, Typography, Box, Paper, Grid, Button, Dialog, DialogContent } from "@mui/material";
 import { useRouter } from "next/navigation";
 import AddIcon from "@mui/icons-material/Add";
 import CreateWorkoutForm from "@/app/components/shared/workouts/CreateWorkoutForm";
 import WorkoutList from "@/app/components/shared/workouts/WorkoutList";
 import WorkoutDetails from "@/app/components/shared/workouts/WorkoutDetails";
-import { WorkoutProgram } from "../../client/types/workout";
+import { WorkoutProgram } from "../../components/shared/types/workout";
 
 export default function TrainerWorkoutPage() {
   const [programs, setPrograms] = useState<WorkoutProgram[]>([]);
@@ -44,6 +44,7 @@ export default function TrainerWorkoutPage() {
   }, [token]);
 
   const handleProgramSelect = (program: WorkoutProgram) => {
+    // open details dialog when a program is selected from the list
     setSelectedProgram(program);
   };
 
@@ -97,41 +98,40 @@ export default function TrainerWorkoutPage() {
               />
             </Paper>
           </Grid>
-
-          <Grid item xs={12} md={7}>
-            <Paper sx={{ p: 2, height: "100%" }}>
-              {selectedProgram ? (
-                <WorkoutDetails
-                  program={selectedProgram}
-                  onBack={() => setSelectedProgram(null)}
-                  // show edit controls for trainer
-                  canEdit={true}
-                />
-              ) : (
-                <Box sx={{ textAlign: "center", py: 6 }}>
-                  <Typography variant="h6" color="text.secondary">
-                    Select a program to view and edit details
-                  </Typography>
-                </Box>
-              )}
-            </Paper>
-          </Grid>
         </Grid>
       </Container>
+
+      {/* Popup dialog: show WorkoutDetails as modal when a program is selected */}
+      <Dialog
+        open={!!selectedProgram}
+        onClose={() => setSelectedProgram(null)}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogContent sx={{ p: 0 }}>
+          {selectedProgram && (
+            <WorkoutDetails
+              program={selectedProgram}
+              onBack={() => setSelectedProgram(null)}
+              canEdit={true}
+              onDeleted={(id: number) => {
+                // remove deleted program immediately from local list
+                setPrograms((prev) => prev.filter((p) => p.workoutProgramId !== id));
+                setSelectedProgram(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       <CreateWorkoutForm
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onCreated={(created) => {
-          // prefer updating local state (if you keep programs state). Fallback: refresh page
-          try {
-            // if you have setPrograms in scope uncomment and use:
-            // setPrograms((p) => [created, ...p]);
-          } finally {
-            setCreateOpen(false);
-            // refresh server-side data / lists
-            router.refresh();
-          }
+          // append created program to local list so UI is in sync
+          setPrograms((prev) => [created, ...prev]);
+          setCreateOpen(false);
+          setSelectedProgram(created);
         }}
       />
     </>

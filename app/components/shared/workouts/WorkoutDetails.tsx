@@ -1,39 +1,42 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
-  Typography,
   Button,
+  Typography,
+  Chip,
+  Grid,
   Card,
   CardContent,
-  Grid,
-  Chip,
   Avatar,
-  IconButton,
-  alpha
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+  CircularProgress,
 } from '@mui/material';
-import {
-  ArrowBack,
-  FitnessCenter,
-  Timer,
-  Repeat,
-  SportsGymnastics,
-  PlayArrow
-} from '@mui/icons-material';
-import { WorkoutProgram, Exercise } from '../../../client/types/workout';
+import { ArrowBack, FitnessCenter, PlayArrow, Repeat, Timer, SportsGymnastics } from '@mui/icons-material';
+import DeleteOutline from '@mui/icons-material/DeleteOutline';
+import { useRouter } from 'next/navigation';
+import { api } from '@/lib/api';
+import { WorkoutProgram, Exercise } from '../types/workout';
 import ExerciseDialog from '../ExerciseDialog';
 import EditWorkoutForm from './EditWorkoutForm';
+import { alpha } from '@mui/material/styles';
 
 interface WorkoutDetailsProps {
   program: WorkoutProgram;
   onBack: () => void;
   canEdit?: boolean;
+  onDeleted?: (id: number) => void;
 }
 
-export default function WorkoutDetails({ program, onBack, canEdit = false }: WorkoutDetailsProps) {
+export default function WorkoutDetails({ program, onBack, canEdit = false, onDeleted }: WorkoutDetailsProps) {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [editing, setEditing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const router = useRouter();
 
   const handleExerciseClick = (exercise: Exercise) => {
     setSelectedExercise(exercise);
@@ -45,13 +48,28 @@ export default function WorkoutDetails({ program, onBack, canEdit = false }: Wor
   };
 
   const handleSaved = (updated: WorkoutProgram) => {
-    // You can update local state or notify parent to refetch
-    // e.g., setProgram(updated) if you lift program into state
     console.log('saved', updated);
   };
 
+  const handleDeleteProgram = async () => {
+    if (!program?.workoutProgramId) return;
+    if (!confirm(`Delete program "${program.name}"? This cannot be undone.`)) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/api/WorkoutPrograms/${program.workoutProgramId}`);
+      // notify parent to remove the program from its list
+      onDeleted?.(program.workoutProgramId);
+      onBack();
+    } catch (err) {
+      console.error('Failed to delete program', err);
+      alert('Failed to delete program.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
-    <>
+    <Box sx={{ p: 3 }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Button startIcon={<ArrowBack />} onClick={onBack} sx={{ mb: 3, textTransform: 'none' }}>
@@ -90,10 +108,24 @@ export default function WorkoutDetails({ program, onBack, canEdit = false }: Wor
 
           <Box sx={{ display: 'flex', gap: 2 }}>
             {canEdit && (
-              <Button variant="outlined" onClick={() => setEditing(true)} sx={{ textTransform: 'none' }}>
-                Edit
-              </Button>
+              <>
+                <Button variant="outlined" onClick={() => setEditing(true)} sx={{ textTransform: 'none' }}>
+                  Edit
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteOutline />}
+                  onClick={handleDeleteProgram}
+                  disabled={deleting}
+                  sx={{ textTransform: 'none' }}
+                >
+                  {deleting ? <CircularProgress size={18} color="inherit" /> : 'Delete'}
+                </Button>
+              </>
             )}
+
             <Button
               variant="contained"
               size="large"
@@ -262,6 +294,6 @@ export default function WorkoutDetails({ program, onBack, canEdit = false }: Wor
       />
 
       <EditWorkoutForm open={editing} program={program} onClose={() => setEditing(false)} onSaved={handleSaved} />
-    </>
+    </Box>
   );
 }

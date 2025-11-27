@@ -11,7 +11,7 @@ import {
   Box,
   CircularProgress,
 } from '@mui/material';
-import { Exercise } from '@/app/client/types/workout';
+import { Exercise } from '@/app/components/shared/types/workout';
 import { api } from '@/lib/api';
 import { useAuth } from '@/app/ui/AuthProvider';
 

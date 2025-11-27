@@ -19,7 +19,7 @@ import {
   SportsGymnastics,
   Info
 } from '@mui/icons-material';
-import { Exercise } from '../../client/types/workout';
+import { Exercise } from './types/workout';
 
 interface ExerciseDialogProps {
   exercise: Exercise | null;
@@ -57,7 +57,8 @@ export default function ExerciseDialog({ exercise, open, onClose }: ExerciseDial
           alignItems: 'center'
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+        {/* DialogTitle already renders an <h2> — avoid nesting another heading element */}
+        <Typography variant="h5" component="div" sx={{ fontWeight: 600 }}>
           {exercise.name}
         </Typography>
         <IconButton onClick={onClose} sx={{ color: 'white' }}>

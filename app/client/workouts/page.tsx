@@ -5,7 +5,7 @@ import { Container, Typography, Box, Paper, Grid } from '@mui/material';
 import { FitnessCenter, Schedule, TrendingUp } from '@mui/icons-material';
 import { api } from '@/lib/api';
 import { useAuth } from '@/app/ui/AuthProvider';
-import { WorkoutProgram } from '../types/workout';
+import { WorkoutProgram } from '../../components/shared/types/workout';
 import WorkoutList from '../../components/shared/workouts/WorkoutList';
 import WorkoutDetails from '../../components/shared/workouts/WorkoutDetails';
 import EmptyState from '../../components/shared/EmptyState';

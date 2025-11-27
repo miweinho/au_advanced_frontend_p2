@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Container } from '@mui/material';
 import { api } from '@/lib/api';
 import { useUI } from '../components/ui/UIContext';
-import { WorkoutProgram } from './types/workout';
+import { WorkoutProgram } from '../components/shared/types/workout';
 import DashboardContent from './components/Dashboard/DashboardContent';
 import LoadingState from '../components/shared/LoadingState';
 
