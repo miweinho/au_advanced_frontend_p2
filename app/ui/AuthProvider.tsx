@@ -134,10 +134,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       writeCookie('token', null);
       writeCookie('role', null);
     } catch {}
-    try {
-      writeCookie('token', null);
-      writeCookie('role', null);
-    } catch {}
     setTokenState(null);
     setUser(null);
     setUserId(null);
