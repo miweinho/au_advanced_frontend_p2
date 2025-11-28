@@ -47,7 +47,7 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
       {/* Stats grid */}
       <Grid container spacing={3} sx={{ mb: 6 }}>
         {/* Active Programs */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper
             sx={{
               p: 3,
@@ -88,7 +88,7 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
         </Grid>
 
         {/* Total Exercises */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper
             sx={{
               p: 3,
@@ -129,7 +129,7 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
         </Grid>
 
         {/* Sessions This Week */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper
             sx={{
               p: 3,
@@ -170,7 +170,7 @@ export default function DashboardContent({ programs }: DashboardContentProps) {
         </Grid>
 
         {/* Weekly Goal */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper
             sx={{
               p: 3,

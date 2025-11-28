@@ -54,7 +54,7 @@ export default function TrainerWorkoutPage() {
 
   return (
     <>
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <Box
           sx={{
             mb: 4,
@@ -87,7 +87,7 @@ export default function TrainerWorkoutPage() {
         </Box>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} md={5}>
+          <Grid size={{ xs: 12 }}>
             <Paper sx={{ p: 2, height: "100%" }}>
               <WorkoutList
                 programs={programs}

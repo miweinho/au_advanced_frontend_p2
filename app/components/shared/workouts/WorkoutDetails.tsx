@@ -148,7 +148,7 @@ export default function WorkoutDetails({ program, onBack, canEdit = false, onDel
       {/* Exercise List */}
       <Grid container spacing={3}>
         {program.exercises?.map((exercise, index) => (
-          <Grid item xs={12} key={exercise.exerciseId || index}>
+          <Grid size={12} key={exercise.exerciseId || index}>
             <Card
               sx={{
                 cursor: 'pointer',

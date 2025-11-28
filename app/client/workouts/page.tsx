@@ -85,7 +85,7 @@ export default function WorkoutsPage() {
 
       {/* Quick stats */}
       <Grid container spacing={3} sx={{ mb: 6 }}>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <Paper sx={{ p: 3, textAlign: 'center', borderRadius: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
               <FitnessCenter sx={{ fontSize: 32, color: 'primary.main', mr: 2 }} />
@@ -101,7 +101,7 @@ export default function WorkoutsPage() {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <Paper sx={{ p: 3, textAlign: 'center', borderRadius: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
               <TrendingUp sx={{ fontSize: 32, color: 'secondary.main', mr: 2 }} />
@@ -117,7 +117,7 @@ export default function WorkoutsPage() {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <Paper sx={{ p: 3, textAlign: 'center', borderRadius: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
               <Schedule sx={{ fontSize: 32, color: 'success.main', mr: 2 }} />

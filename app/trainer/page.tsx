@@ -117,7 +117,7 @@ export default function TrainerWelcomePage() {
 
       <Grid container spacing={3} sx={{ mb: 6 }} alignItems="stretch">
         {/* Assigned clients count */}
-        <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex' }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }} sx={{ display: 'flex' }}>
           <Paper
             sx={{
               p: 3,
@@ -150,7 +150,7 @@ export default function TrainerWelcomePage() {
         </Grid>
 
         {/* Your Programs */}
-        <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex' }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }} sx={{ display: 'flex' }}>
           <Paper
             sx={{
               p: 3,
@@ -182,7 +182,7 @@ export default function TrainerWelcomePage() {
         </Grid>
 
         {/* Your Exercises (card with count only) */}
-        <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex' }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }} sx={{ display: 'flex' }}>
           <Paper
             sx={{
               p: 3,
@@ -215,7 +215,7 @@ export default function TrainerWelcomePage() {
         </Grid>
 
         {/* filler card */}
-        <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex' }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }} sx={{ display: 'flex' }}>
           <Paper sx={{ p: 3, flex: 1, height: '100%', borderRadius: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <FitnessCenter sx={{ fontSize: 28, mr: 1.5 }} />
