@@ -119,7 +119,8 @@ export default function CreateWorkoutForm({ open, onClose, onCreated }: Props) {
     setExerciseToAdd("");
   };
 
-  const handleRemoveExercise = (id: number) => {
+  const handleRemoveExercise = (id: number | null) => {
+    if (id == null) return;
     setSelectedExercises((s) => s.filter((x) => x.exerciseId !== id));
   };
 

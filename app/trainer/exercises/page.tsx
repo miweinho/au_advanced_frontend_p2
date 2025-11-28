@@ -21,17 +21,7 @@ import {
 import EditExerciseForm from "@/app/components/shared/workouts/EditExerciseForm";
 import ExerciseDialog from "@/app/components/shared/ExerciseDialog";
 import { Plus, Edit, Trash } from "lucide-react";
-
-interface ExerciseItem {
-  exerciseId: number;
-  name: string;
-  description?: string;
-  sets?: number | null;
-  repetitions?: number | null;
-  time?: string | null;
-  personalTrainerId?: number | null;
-  workoutProgramId?: number | null;
-}
+import { Exercise as ExerciseItem } from "@/app/components/shared/types/workout";
 
 export default function TrainerExercisesPage() {
   const { user, isTrainer } = useAuth();
