@@ -109,6 +109,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     _initial.payload ? extractUserId(_initial.payload) : null
   );
 
+  const writeCookie = (name: string, value?: string | null) => {
+    if (typeof document === 'undefined') return;
+    const base = '; path=/; SameSite=Lax';
+    if (value) {
+      document.cookie = `${name}=${encodeURIComponent(value)}${base}`;
+    } else {
+      document.cookie = `${name}=; Max-Age=0${base}`;
+    }
+  };
+
   // guard to avoid redirect loop
   const redirectRef = useRef(false);
   const hasAutoNavigatedRef = useRef(false);
@@ -118,6 +128,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
+    } catch {}
+    try {
+      writeCookie('token', null);
+      writeCookie('role', null);
     } catch {}
     setTokenState(null);
     setUser(null);
@@ -228,6 +242,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const setToken = (t?: string | null) => {
     if (typeof window === 'undefined') return;
 
+    writeCookie('token', t);
+
     if (t) {
       localStorage.setItem('token', t);
       setTokenState(t);
@@ -280,6 +296,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const payload = decodeJwtPayload(t);
     const finalRole = roleArg || getPayloadRole(payload) || '';
     setRole(finalRole);
+
+    // keep middleware cookies aligned with client state
+    writeCookie('role', finalRole || null);
 
     // AUTO-NAVIGATE based on role
     const roleLower = finalRole.toLowerCase();
