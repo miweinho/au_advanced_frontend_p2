@@ -128,6 +128,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
+      localStorage.removeItem("role");
+    } catch {}
+    try {
+      writeCookie('token', null);
+      writeCookie('role', null);
     } catch {}
     try {
       writeCookie('token', null);
@@ -270,6 +275,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } else {
       localStorage.removeItem('token');
+      localStorage.removeItem('role');
       setTokenState(null);
       setAuthToken(undefined);
       setUser(null);
@@ -299,6 +305,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // keep middleware cookies aligned with client state
     writeCookie('role', finalRole || null);
+    try {
+      if (finalRole) localStorage.setItem('role', finalRole);
+      else localStorage.removeItem('role');
+    } catch {}
 
     // AUTO-NAVIGATE based on role
     const roleLower = finalRole.toLowerCase();

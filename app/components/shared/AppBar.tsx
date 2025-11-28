@@ -5,6 +5,7 @@ import { Menu as MenuIcon, FitnessCenter, Notifications as NotificationsIcon } f
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useRouter } from 'next/navigation';
 import { useUI } from '../ui/UIContext';
+import { useAuth } from '@/app/ui/AuthProvider';
 
 interface AppBarProps {
   open: boolean;
@@ -16,11 +17,11 @@ const drawerWidth = 240;
 export default function AppBar({ open, toggleDrawer }: AppBarProps) {
   const router = useRouter();
   const { title } = useUI();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
     try {
-      localStorage.removeItem('token');
-      localStorage.removeItem('role');
+      logout();
       localStorage.removeItem('drawerOpen');
     } catch {
       // ignore storage errors
