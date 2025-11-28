@@ -65,10 +65,11 @@ export default function CreatePT() {
 
       const { confirmPassword, ...apiData } = formData;
       const response = await api.post('/api/Users', apiData);
-      if (response.status !== 200) {
+      console.log(response.status);
+      if (!(response.status >= 200 && response.status < 300)) {
         throw new Error(`API error: ${response.status}`);
       }
-
+      
       setSuccess(true);
       
       setFormData({
